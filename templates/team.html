@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ team_label }} — Bash CTF</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 1rem auto; padding: 0 1rem; }
+    h1 { margin-bottom: 0.25rem; }
+    .team-name-edit { font-size: 0.9rem; color: #666; margin-bottom: 1rem; }
+    .team-name-edit input { padding: 0.25rem 0.5rem; width: 200px; }
+    .team-name-edit button { margin-left: 0.5rem; padding: 0.25rem 0.5rem; }
+    section { margin: 1.5rem 0; }
+    section h2 { font-size: 1.1rem; margin-bottom: 0.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
+    .challenge { display: flex; align-items: center; gap: 0.5rem; margin: 0.4rem 0; flex-wrap: wrap; }
+    .challenge label { min-width: 160px; }
+    .challenge input[type="text"] { flex: 1; min-width: 200px; max-width: 400px; padding: 0.35rem; }
+    .challenge button.submit { padding: 0.35rem 0.75rem; }
+    .challenge .result { font-size: 1.2rem; }
+    .result.ok { color: #0a0; }
+    .result.fail { color: #c00; }
+    .solved .submit-wrap { display: none; }
+    .challenge .doc-link { font-size: 0.85rem; white-space: nowrap; }
+    a { color: #06c; }
+  </style>
+</head>
+<body>
+  <h1>{{ team_label }}</h1>
+  <div class="team-name-edit">
+    <label for="teamName">Team name:</label>
+    <input type="text" id="teamName" placeholder="{{ team_label }}">
+    <button type="button" id="setNameBtn">Set name</button>
+  </div>
+  <p><a href="/">← Back</a> | <a href="/scores">Scores</a></p>
+
+  <section>
+    <h2>Setup scripts</h2>
+    <p>Download and run on your machine to create the challenge environment:</p>
+    <ul>
+      {% for filename, label in setup_files %}
+      <li><a href="/setup/{{ filename }}" download>{{ label }}</a> (<code>{{ filename }}</code>)</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Basics</h2>
+    {% for cid in challenge_ids if cid.startswith('basics-') %}
+    <div class="challenge" id="row-{{ cid }}" data-challenge-id="{{ cid }}">
+      <label>{{ challenge_labels[cid] }}</label>
+      <input type="text" class="flag-input" placeholder="Paste flag" autocomplete="off">
+      <span class="doc-link"><a href="/challenge/{{ challenge_docs[cid][0] }}/{{ challenge_docs[cid][1] }}" target="_blank" rel="noopener">Brief</a></span>
+      <span class="submit-wrap"><button type="button" class="submit">Submit</button></span>
+      <span class="result" aria-live="polite"></span>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section>
+    <h2>Intermediates</h2>
+    {% for cid in challenge_ids if cid.startswith('interm-') %}
+    <div class="challenge" id="row-{{ cid }}" data-challenge-id="{{ cid }}">
+      <label>{{ challenge_labels[cid] }}</label>
+      <input type="text" class="flag-input" placeholder="Paste flag" autocomplete="off">
+      <span class="doc-link"><a href="/challenge/{{ challenge_docs[cid][0] }}/{{ challenge_docs[cid][1] }}" target="_blank" rel="noopener">Brief</a></span>
+      <span class="submit-wrap"><button type="button" class="submit">Submit</button></span>
+      <span class="result" aria-live="polite"></span>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section>
+    <h2>Advanced</h2>
+    {% for cid in challenge_ids if cid.startswith('advanced-') %}
+    <div class="challenge" id="row-{{ cid }}" data-challenge-id="{{ cid }}">
+      <label>{{ challenge_labels[cid] }}</label>
+      <input type="text" class="flag-input" placeholder="Paste flag" autocomplete="off">
+      <span class="doc-link"><a href="/challenge/{{ challenge_docs[cid][0] }}/{{ challenge_docs[cid][1] }}" target="_blank" rel="noopener">Brief</a></span>
+      <span class="submit-wrap"><button type="button" class="submit">Submit</button></span>
+      <span class="result" aria-live="polite"></span>
+    </div>
+    {% endfor %}
+  </section>
+
+  <script>
+    const TEAM = "{{ team_id }}";
+    const API = "";
+
+    document.getElementById("setNameBtn").onclick = function () {
+      const name = document.getElementById("teamName").value.trim();
+      if (!name) return;
+      fetch(API + "/api/team-name", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ team: TEAM, name: name })
+      })
+        .then(r => r.json())
+        .then(d => { document.getElementById("teamName").placeholder = d.name; document.querySelector("h1").textContent = d.name; });
+    };
+
+    fetch(API + "/api/team-name?team=" + TEAM)
+      .then(r => r.json())
+      .then(d => {
+        if (d.name) {
+          document.getElementById("teamName").placeholder = d.name;
+          document.querySelector("h1").textContent = d.name;
+        }
+      });
+
+    fetch(API + "/api/state")
+      .then(r => r.json())
+      .then(state => {
+        const key = "team" + TEAM;
+        (state[key].solved || []).forEach(cid => {
+          const row = document.getElementById("row-" + cid);
+          if (row) { row.classList.add("solved"); row.querySelector(".result").textContent = "✓"; row.querySelector(".result").className = "result ok"; }
+        });
+      });
+
+    document.querySelectorAll(".challenge").forEach(row => {
+      const cid = row.dataset.challengeId;
+      const input = row.querySelector(".flag-input");
+      const btn = row.querySelector("button.submit");
+      const result = row.querySelector(".result");
+
+      btn.addEventListener("click", function () {
+        const flag = input.value.trim();
+        if (!flag) return;
+        fetch(API + "/api/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ team: TEAM, challengeId: cid, flag: flag })
+        })
+          .then(r => r.json())
+          .then(d => {
+            if (d.ok) {
+              row.classList.add("solved");
+              result.textContent = "✓";
+              result.className = "result ok";
+            } else {
+              result.textContent = "✗";
+              result.className = "result fail";
+            }
+          });
+      });
+
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") btn.click();
+      });
+    });
+  </script>
+</body>
+</html>

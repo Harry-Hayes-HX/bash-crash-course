@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} — Bash CTF</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+      color: #1a1a1a;
+      background: #fff;
+    }
+    h1 { font-size: 1.5rem; margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 0.35rem; }
+    h2 { font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    h3 { font-size: 1.05rem; margin-top: 1.25rem; margin-bottom: 0.4rem; }
+    p { margin: 0.75rem 0; }
+    ul, ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+    li { margin: 0.25rem 0; }
+    code {
+      background: #f0f0f0;
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-family: ui-monospace, monospace;
+    }
+    pre {
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+    pre code { background: none; padding: 0; }
+    blockquote {
+      border-left: 4px solid #ccc;
+      margin: 1rem 0;
+      padding-left: 1rem;
+      color: #555;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1rem 0;
+    }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f5f5f5; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 1.5rem 0; }
+    strong { font-weight: 600; }
+    a { color: #06c; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .back { margin-bottom: 1rem; font-size: 0.9rem; }
+    details { margin: 1rem 0; }
+    details ul, details ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+    details li { margin-bottom: 0.5rem; display: list-item; }
+    details p { margin-bottom: 0.5rem; }
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0.35rem 0;
+      user-select: none;
+    }
+    summary:hover { color: #06c; }
+    del { text-decoration: line-through; color: #888; }
+    /* Animated Matrix-style “digital rain” container */
+    .matrix-rain-container {
+      width: 100%;
+      height: 200px;
+      background: #0a0a0a;
+      border: 1px solid #004400;
+      border-radius: 4px;
+      margin: 1.25rem 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .matrix-rain-container canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="markdown-body">
+    {{ content | safe }}
+  </div>
+  <script>
+(function() {
+  var container = document.getElementById('matrix-rain-canvas');
+  if (!container) return;
+
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
+  container.appendChild(canvas);
+
+  var chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓ01';
+  var fontSize = 14;
+  var columns = [];
+  var w = 0, h = 0;
+
+  function resize() {
+    w = container.clientWidth;
+    h = container.clientHeight;
+    canvas.width = w;
+    canvas.height = h;
+    columns = [];
+    var n = Math.floor(w / fontSize);
+    for (var i = 0; i < n; i++) {
+      columns[i] = Math.random() * h / fontSize;
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = fontSize + 'px monospace';
+
+    for (var i = 0; i < columns.length; i++) {
+      var idx = Math.floor(Math.random() * chars.length);
+      var char = chars[idx];
+      var x = i * fontSize;
+      var y = columns[i] * fontSize;
+      ctx.fillStyle = 'rgba(0, 255, 65, 0.15)';
+      ctx.fillText(char, x, y);
+      ctx.fillStyle = '#00ff41';
+      ctx.fillText(char, x, y);
+      if (y > h && Math.random() > 0.975) columns[i] = 0;
+      else columns[i] += 0.5;
+    }
+  }
+
+  function tick() {
+    draw();
+    requestAnimationFrame(tick);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  tick();
+})();
+  </script>
+</body>
+</html>

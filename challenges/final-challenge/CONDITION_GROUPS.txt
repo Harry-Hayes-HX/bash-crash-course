@@ -1,0 +1,35 @@
+================================================================================
+  CONDITION GROUPS (ABSTRACT)
+================================================================================
+Use this as a reference for the kinds of stress your script will face. You do
+not know which group will be used for a given run, or in what order.
+
+  Group 1 — User error
+  Wrong or missing arguments, invalid options, unexpected option values.
+  The script is invoked in ways that are incorrect or incomplete.
+
+  Group 2 — Missing or invalid config
+  Config file missing, unreadable, or not a regular file. Config path wrong
+  or empty. The script cannot rely on the config being present or valid.
+
+  Group 3 — Filesystem and permissions
+  Destination not writable, source files not readable, directories missing,
+  or permission denied. The environment exists but access is restricted or
+  paths are invalid.
+
+  Group 4 — Signals and interruption
+  The script is interrupted (e.g. Ctrl+C / SIGINT or SIGTERM) while running.
+  It must exit cleanly and leave no half-finished state.
+
+  Group 5 — Empty or malformed data
+  Config file empty, or contains blank lines or paths that do not exist.
+  Input is present but useless or misleading.
+
+  Group 6 — Environment and context
+  Different working directory, relative vs absolute paths, or paths that
+  depend on where the script is run from. The same config may mean different
+  things in different contexts.
+
+================================================================================
+One group is used per run. The group is not disclosed before the run.
+================================================================================

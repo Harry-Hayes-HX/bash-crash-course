@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bash CTF Referee</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { margin-bottom: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5rem 0; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Bash CTF Referee</h1>
+  <ul>
+    <li><a href="/team-a">Team A</a></li>
+    <li><a href="/team-b">Team B</a></li>
+    <li><a href="/scores">Scores</a></li>
+  </ul>
+  <h2 style="margin-top: 2rem; font-size: 1.1rem;">Git lessons</h2>
+  <p style="color: #555; font-size: 0.95rem;">Supplementary reading — no CTF challenges for this track.</p>
+  <ul>
+    {% for filename, label in git_lessons %}
+    <li><a href="/lesson/git/{{ filename }}" target="_blank" rel="noopener">{{ label }}</a></li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

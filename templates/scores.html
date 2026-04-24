@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scores — Bash CTF</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { margin-bottom: 1.5rem; }
+    .scores { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .team-block { padding: 1rem; border: 1px solid #ccc; border-radius: 8px; min-width: 200px; }
+    .team-block h2 { margin: 0 0 0.5rem 0; font-size: 1.25rem; }
+    .team-block .score { font-size: 2rem; font-weight: bold; color: #06c; }
+    .lessons { margin-top: 2rem; }
+    .lessons h2 { font-size: 1.1rem; margin-bottom: 0.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
+    .lessons h3 { font-size: 1rem; margin: 1rem 0 0.25rem 0; color: #333; }
+    .lessons ul { margin: 0.25rem 0 1rem 0; padding-left: 1.25rem; }
+    .lessons li { margin: 0.2rem 0; }
+    a { color: #06c; }
+  </style>
+</head>
+<body>
+  <h1>Scores</h1>
+  <p><a href="/">← Back</a></p>
+  <div class="scores">
+    <div class="team-block" id="teamA">
+      <h2 id="nameA">Team A</h2>
+      <div class="score" id="scoreA">0</div>
+    </div>
+    <div class="team-block" id="teamB">
+      <h2 id="nameB">Team B</h2>
+      <div class="score" id="scoreB">0</div>
+    </div>
+  </div>
+
+  <div class="lessons">
+    <h2>Lessons</h2>
+    <p>View lesson content (opens in new tab):</p>
+    <h3>Basics</h3>
+    <ul>
+      {% for filename, label in lessons.basics %}
+      <li><a href="/lesson/basics/{{ filename }}" target="_blank" rel="noopener">{{ label }}</a></li>
+      {% endfor %}
+    </ul>
+    <h3>Intermediates</h3>
+    <ul>
+      {% for filename, label in lessons.intermediates %}
+      <li><a href="/lesson/intermediates/{{ filename }}" target="_blank" rel="noopener">{{ label }}</a></li>
+      {% endfor %}
+    </ul>
+    <h3>Advanced</h3>
+    <ul>
+      {% for filename, label in lessons.advanceds %}
+      <li><a href="/lesson/advanceds/{{ filename }}" target="_blank" rel="noopener">{{ label }}</a></li>
+      {% endfor %}
+    </ul>
+    <h3>Git</h3>
+    <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #555;">No challenges — lessons only.</p>
+    <ul>
+      {% for filename, label in lessons.git %}
+      <li><a href="/lesson/git/{{ filename }}" target="_blank" rel="noopener">{{ label }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="lessons">
+    <h2>Final Challenge</h2>
+    <ul>
+      <li><a href="/challenge/final-challenge/USER_STORY.md" target="_blank" rel="noopener">Final Challenge</a></li>
+    </ul>
+  </div>
+
+  <script>
+    function refresh() {
+      fetch("/api/state")
+        .then(r => r.json())
+        .then(state => {
+          document.getElementById("nameA").textContent = state.teamA.name || "Team A";
+          document.getElementById("nameB").textContent = state.teamB.name || "Team B";
+          document.getElementById("scoreA").textContent = (state.teamA.solved || []).length;
+          document.getElementById("scoreB").textContent = (state.teamB.solved || []).length;
+        });
+    }
+    refresh();
+    setInterval(refresh, 2000);
+  </script>
+</body>
+</html>
