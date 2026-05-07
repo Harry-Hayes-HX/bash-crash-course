@@ -1,3 +1,7 @@
+KIERAN TEST
+
+
+
 # Bash CTF Referee Site
 
 Simple local site for two teams to submit CTF flags. Runs on the machine’s IP so both teams can use it on the same network.
